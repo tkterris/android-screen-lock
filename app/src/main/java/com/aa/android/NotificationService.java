@@ -11,6 +11,7 @@ import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.support.v4.app.NotificationCompat;
 
 /**
  * Created by txiao on 12/14/16.
@@ -80,12 +81,13 @@ public class NotificationService extends Service {
 
         // this is it, we'll build the notification!
         // in the addAction method, if you don't want any icon, just set the first param to 0
-        Notification mNotification = new Notification.Builder(this)
+        Notification mNotification = new NotificationCompat.Builder(this)
 
                 .setContentTitle(TITLE)
                 .setContentText(MESSAGE)
                 .setSmallIcon(R.drawable.small_icon)
                 //.setContentIntent(pIntent)
+                .setChannelId("channel_01")
 
                 .build();
 
