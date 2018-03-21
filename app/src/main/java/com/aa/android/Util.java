@@ -53,11 +53,7 @@ public class Util {
 
         ComponentName serviceComponent = new ComponentName(context, LockedNotificationTimerService.class);
         JobInfo.Builder builder = new JobInfo.Builder(0, serviceComponent);
-        builder.setMinimumLatency(3600 * 1000); // wait at least
-        builder.setOverrideDeadline(1800 * 1000); // maximum delay
-        //builder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED); // require unmetered network
-        //builder.setRequiresDeviceIdle(true); // device should be idle
-        //builder.setRequiresCharging(false); // we don't care if the device is charging or not
+        builder.setPeriodic(1800 * 1000, 600 * 1000); //repeat every 30 minutes, flex 10 minutes
         JobScheduler jobScheduler = context.getSystemService(JobScheduler.class);
         jobScheduler.schedule(builder.build());
 

@@ -14,7 +14,6 @@ public class LockedNotificationTimerService extends JobService {
         Util.logicForNotificationTimer(this);
         Intent service = new Intent(getApplicationContext(), LockedNotificationTimerService.class);
         getApplicationContext().startService(service);
-        Util.scheduleJob(getApplicationContext()); // reschedule the job
         return true;
     }
 
