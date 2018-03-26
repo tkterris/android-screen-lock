@@ -12,13 +12,11 @@ public class LockedNotificationTimerService extends JobService {
     @Override
     public boolean onStartJob(JobParameters params) {
         Util.logicForNotificationTimer(this);
-        Intent service = new Intent(getApplicationContext(), LockedNotificationTimerService.class);
-        getApplicationContext().startService(service);
-        return true;
+        return false;
     }
 
     @Override
     public boolean onStopJob(JobParameters params) {
-        return true;
+        return false;
     }
 }
