@@ -1,4 +1,4 @@
-package com.aa.android;
+package com.txiao.fossil.lock;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("com.aa.android", appContext.getPackageName());
+        assertEquals("com.txiao.fossil.lock", appContext.getPackageName());
     }
 }
