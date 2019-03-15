@@ -2,7 +2,6 @@ package com.txiao.fossil.lock;
 
 import android.app.NotificationManager;
 import android.content.Context;
-import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
@@ -17,5 +16,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         super.onCreate(savedInstanceState);
+
     }
 }
