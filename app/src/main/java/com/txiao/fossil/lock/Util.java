@@ -75,8 +75,6 @@ public class Util {
     }
 
     public static void onNotificationRemoved(StatusBarNotification sbn, NotificationListenerService service) {
-        String ns = Context.NOTIFICATION_SERVICE;
-        NotificationManager nMgr = (NotificationManager) service.getSystemService(ns);
         if (!hasNotificationsBeenCleared
                 && locked(service)
                 && isAllLockScreenNotificationsClosed(sbn, service)) {
@@ -98,7 +96,7 @@ public class Util {
     private static boolean isAllLockScreenNotificationsClosed(StatusBarNotification removedSbn, NotificationListenerService service) {
 
         for (StatusBarNotification sbn : service.getActiveNotifications()) {
-            if (!sbn.equals(removedSbn) && sbn.getNotification().priority >= Notification.PRIORITY_LOW) {
+            if (!sbn.equals(removedSbn)) {
                 return false;
             }
         }
