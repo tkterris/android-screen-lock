@@ -11,6 +11,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
+import android.os.PowerManager;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.support.v4.app.NotificationCompat;
@@ -26,8 +27,10 @@ public class Util {
     private static final int NOTIFICATION_ID = 2;
     private static final String TITLE = "Screen Unlock Action";
     private static final String MESSAGE = "This notification should automatically close";
+    public static final String LOCK_TAG = "android-screen-lock:mywakelock";
 
     private static boolean hasNotificationsBeenCleared = false;
+    private static PowerManager.WakeLock lock;
 
     public static void configure(Context context, NotificationManager mNotificationManager) {
         // The id of the channel.
@@ -45,6 +48,8 @@ public class Util {
         context.startService(pushIntent);
         pushIntent = new Intent(context, PhoneNotificationListener.class);
         context.startService(pushIntent);
+
+        lock = ((PowerManager) context.getSystemService(Service.POWER_SERVICE)).newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, LOCK_TAG);
 
         Util.scheduleJob(context);
     }
@@ -87,10 +92,13 @@ public class Util {
         return km.inKeyguardRestrictedInputMode();
     }
 
-    private static void hideNotification(Service service) {
+    public static void hideNotification(Service service) {
         String ns = Context.NOTIFICATION_SERVICE;
         NotificationManager nMgr = (NotificationManager) service.getApplicationContext().getSystemService(ns);
         nMgr.cancelAll();
+        if (lock.isHeld()) {
+            lock.release();
+        }
     }
 
     private static boolean isAllLockScreenNotificationsClosed(StatusBarNotification removedSbn, NotificationListenerService service) {
@@ -104,7 +112,11 @@ public class Util {
         return true;
     }
 
-    private static void showAndHideNotification(Service service) {
+    public static void showAndHideNotification(Service service) {
+
+        if (!lock.isHeld()) {
+            lock.acquire();
+        }
 
         // intent triggered, you can add other intent for other actions
         //Intent intent = new Intent(MainActivity.this, NotificationReceiver.class);

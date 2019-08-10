@@ -27,25 +27,7 @@ public class NotificationService extends Service {
 
     private boolean hasShownAfterLock = false;
 
-    private BroadcastReceiver mPowerKeyReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if (Intent.ACTION_USER_PRESENT.equals(action)) {
-                //if the user unlocks the phone, remove notifications
-                hasShownAfterLock = false;
-                hideNotification();
-            } else if (Intent.ACTION_SCREEN_OFF.equals(action) && !hasShownAfterLock && locked()) {
-                //if the phone is locked and is waiting to show,
-                //show the notification
-                showAndHideNotification();
-                hasShownAfterLock = true;
-            } else if (Intent.ACTION_SCREEN_ON.equals(action) && !DEBUG) {
-                //hide notificate if screen turns off, and not debuggging
-                hideNotification();
-            }
-        }
-    };
+    private BroadcastReceiver mPowerKeyReceiver = new LockBroadcastReceiver(this);
 
     @Nullable
     @Override
@@ -73,48 +55,36 @@ public class NotificationService extends Service {
         getApplicationContext().registerReceiver(mPowerKeyReceiver, screenFilter);
     }
 
-    private void showAndHideNotification() {
-
-        // intent triggered, you can add other intent for other actions
-        //Intent intent = new Intent(MainActivity.this, NotificationReceiver.class);
-        //PendingIntent pIntent = PendingIntent.getActivity(MainActivity.this, 0, intent, 0);
-
-        // this is it, we'll build the notification!
-        // in the addAction method, if you don't want any icon, just set the first param to 0
-        Notification mNotification = new NotificationCompat.Builder(this)
-
-                .setContentTitle(TITLE)
-                .setContentText(MESSAGE)
-                .setSmallIcon(R.drawable.small_icon)
-                //.setContentIntent(pIntent)
-                .setChannelId("channel_01")
-
-                .build();
-
-        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-
-        // If you want to hide the notification after it was selected, do the code below
-        // myNotification.flags |= Notification.FLAG_AUTO_CANCEL;
-
-        notificationManager.notify(NOTIFICATION_ID, mNotification);
-
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                hideNotification();
-            }
-        }, UNLOCK_TIME_MILLIS);
-    }
-
-    private void hideNotification() {
-        String ns = Context.NOTIFICATION_SERVICE;
-        NotificationManager nMgr = (NotificationManager) getApplicationContext().getSystemService(ns);
-        nMgr.cancelAll();
-    }
-
     private boolean locked() {
         KeyguardManager km = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
         return km.inKeyguardRestrictedInputMode();
+    }
+
+    private class LockBroadcastReceiver extends BroadcastReceiver {
+
+        private Service service;
+
+        private LockBroadcastReceiver(Service service) {
+            super();
+            this.service = service;
+        }
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (Intent.ACTION_USER_PRESENT.equals(action)) {
+                //if the user unlocks the phone, remove notifications
+                hasShownAfterLock = false;
+                Util.hideNotification(service);
+            } else if (Intent.ACTION_SCREEN_OFF.equals(action) && !hasShownAfterLock && locked()) {
+                //if the phone is locked and is waiting to show,
+                //show the notification
+                Util.showAndHideNotification(service);
+                hasShownAfterLock = true;
+            } else if (Intent.ACTION_SCREEN_ON.equals(action) && !DEBUG) {
+                //hide notificate if screen turns off, and not debuggging
+                Util.hideNotification(service);
+            }
+        }
     }
 }
