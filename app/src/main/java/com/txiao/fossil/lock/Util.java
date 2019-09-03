@@ -30,7 +30,6 @@ public class Util {
     public static final String LOCK_TAG = "android-screen-lock:mywakelock";
 
     private static boolean hasNotificationsBeenCleared = false;
-    private static PowerManager.WakeLock lock;
 
     public static void configure(Context context, NotificationManager mNotificationManager) {
         // The id of the channel.
@@ -48,8 +47,6 @@ public class Util {
         context.startService(pushIntent);
         pushIntent = new Intent(context, PhoneNotificationListener.class);
         context.startService(pushIntent);
-
-        lock = ((PowerManager) context.getSystemService(Service.POWER_SERVICE)).newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, LOCK_TAG);
 
         Util.scheduleJob(context);
     }
@@ -96,6 +93,7 @@ public class Util {
         String ns = Context.NOTIFICATION_SERVICE;
         NotificationManager nMgr = (NotificationManager) service.getApplicationContext().getSystemService(ns);
         nMgr.cancelAll();
+        PowerManager.WakeLock lock = getLock(service);
         if (lock.isHeld()) {
             lock.release();
         }
@@ -114,6 +112,7 @@ public class Util {
 
     public static void showAndHideNotification(Service service) {
 
+        PowerManager.WakeLock lock = getLock(service);
         if (!lock.isHeld()) {
             lock.acquire();
         }
@@ -153,5 +152,9 @@ public class Util {
                 return this;
             }
         }.init(service), UNLOCK_TIME_MILLIS);
+    }
+
+    private static PowerManager.WakeLock getLock(Service service) {
+        return ((PowerManager) service.getApplicationContext().getSystemService(Service.POWER_SERVICE)).newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, LOCK_TAG);
     }
 }
