@@ -5,9 +5,6 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
-import android.app.job.JobInfo;
-import android.app.job.JobScheduler;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
@@ -47,25 +44,6 @@ public class Util {
         context.startService(pushIntent);
         pushIntent = new Intent(context, PhoneNotificationListener.class);
         context.startService(pushIntent);
-
-        Util.scheduleJob(context);
-    }
-
-    public static void scheduleJob(Context context) {
-
-        ComponentName serviceComponent = new ComponentName(context, LockedNotificationTimerService.class);
-        JobInfo.Builder builder = new JobInfo.Builder(0, serviceComponent);
-        builder.setPeriodic(1800 * 1000, 600 * 1000); //repeat every 30 minutes, flex 10 minutes
-        JobScheduler jobScheduler = context.getSystemService(JobScheduler.class);
-        jobScheduler.schedule(builder.build());
-
-    }
-
-    public static void logicForNotificationTimer(Service service) {
-        if (hasNotificationsBeenCleared
-                && locked(service)) {
-            showAndHideNotification(service);
-        }
     }
 
     public static void onNotificationPosted(StatusBarNotification sbn, String packageName) {
