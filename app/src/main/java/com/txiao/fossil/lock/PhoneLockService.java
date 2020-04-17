@@ -12,18 +12,13 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 
 /**
  * Created by txiao on 12/14/16.
  */
 
-public class NotificationService extends Service {
-
-    private static boolean DEBUG = true;
-    private static final long UNLOCK_TIME_MILLIS = 20000l;
-    private static final int NOTIFICATION_ID = 2;
-    private static final String TITLE = "Screen Unlock Action";
-    private static final String MESSAGE = "This notification should automatically close";
+public class PhoneLockService extends Service {
 
     private boolean hasShownAfterLock = false;
 
@@ -34,11 +29,6 @@ public class NotificationService extends Service {
     public IBinder onBind(Intent intent) {
         return null;
     }
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        configureNotifications();
-    }
 
     @Override
     public void onDestroy() {
@@ -46,12 +36,24 @@ public class NotificationService extends Service {
         getApplicationContext().unregisterReceiver(mPowerKeyReceiver);
     }
 
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        super.onStartCommand(intent, flags, startId);
+        try {
+            getApplicationContext().unregisterReceiver(mPowerKeyReceiver);
+            Log.v("Unregister", "Previous receiver unregistered.");
+        } catch (Exception e) {
+            Log.v("Unregister", "Receiver already unregistered, skipping.");
+        }
+        configureNotifications();
+        return START_STICKY;
+    }
+
     public void configureNotifications() {
         final IntentFilter screenFilter = new IntentFilter();
         /** System Defined Broadcast */
         screenFilter.addAction(Intent.ACTION_USER_PRESENT);
         screenFilter.addAction(Intent.ACTION_SCREEN_OFF);
-        screenFilter.addAction(Intent.ACTION_SCREEN_ON);
         getApplicationContext().registerReceiver(mPowerKeyReceiver, screenFilter);
     }
 
@@ -81,9 +83,6 @@ public class NotificationService extends Service {
                 //show the notification
                 Util.showAndHideNotification(service);
                 hasShownAfterLock = true;
-            } else if (Intent.ACTION_SCREEN_ON.equals(action) && !DEBUG) {
-                //hide notificate if screen turns off, and not debuggging
-                Util.hideNotification(service);
             }
         }
     }

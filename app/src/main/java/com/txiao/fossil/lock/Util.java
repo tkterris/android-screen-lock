@@ -40,7 +40,7 @@ public class Util {
         // Configure the notification channel.
         mChannel.setDescription(description);
         mNotificationManager.createNotificationChannel(mChannel);
-        Intent pushIntent = new Intent(context, NotificationService.class);
+        Intent pushIntent = new Intent(context, PhoneLockService.class);
         context.startService(pushIntent);
         pushIntent = new Intent(context, PhoneNotificationListener.class);
         context.startService(pushIntent);
@@ -111,7 +111,7 @@ public class Util {
 
                 .build();
 
-        NotificationManager notificationManager = (NotificationManager) service.getSystemService(NotificationService.NOTIFICATION_SERVICE);
+        NotificationManager notificationManager = (NotificationManager) service.getSystemService(PhoneLockService.NOTIFICATION_SERVICE);
 
         // If you want to hide the notification after it was selected, do the code below
         // myNotification.flags |= Notification.FLAG_AUTO_CANCEL;
